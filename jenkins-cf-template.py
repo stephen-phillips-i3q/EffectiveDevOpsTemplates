@@ -108,18 +108,19 @@ t.add_resource(ec2.Instance(
 ))
 
 t.add_output(Output(
-        "InstancePublicIp",
-            Description="Public IP of our instance.",
-                Value=GetAtt("instance", "PublicIp"),
-                ))
+    "InstancePublicIp",
+    Description="Public IP of our instance.",
+    Value=GetAtt("instance", "PublicIp"),
+))
 
 t.add_output(Output(
-        "WebUrl",
-            Description="Application endpoint",
-                Value=Join("", [
-                            "http://", GetAtt("instance", "PublicDnsName"),
-                                    ":", ApplicationPort
-                                        ]),
-                ))
+    "WebUrl",
+    Description="Application endpoint",
+    Value=Join("", [
+        "http://", GetAtt("instance", "PublicDnsName"),
+        ":", ApplicationPort
+    ]),
+))
+
 print t.to_json()
 
