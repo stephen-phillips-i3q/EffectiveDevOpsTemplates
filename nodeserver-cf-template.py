@@ -72,10 +72,16 @@ t.add_resource(ec2.SecurityGroup(
 
 ud = Base64(Join('\n', [
     "#!/bin/bash",
+    "sudo yum update"
+    "sudo yum install --enablerepo=epel -y ruby"
+    "sudo yum install --enablerepo=epel -y wget"
     "sudo yum install --enablerepo=epel -y git",
     "sudo yum install --enablerepo=epel -y ansible",
     AnsiblePullCmd,
     "echo '*/10 * * * * {}' > /etc/cron.d/ansible-pull".format(AnsiblePullCmd)
+    "wget https://aws-codedeploy-us-east-1.s3.amazonaws.com/latest/install"
+    "chmod +x ./install"
+    "sudo ./install auto"
 ]))
 
 t.add_resource(Role(
