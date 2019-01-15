@@ -104,7 +104,7 @@ t.add_resource(LaunchConfiguration(
 		" --region ",
 		Ref('AWS::Region'),
 		"\n"])),
-	ImageId='ami-d61027ad',
+	ImageId='ami-06bec82fb46167b4f',
 	KeyName=Ref("KeyPair"),
 	SecurityGroups=[Ref("SecurityGroup")],
 	IamInstanceProfile=Ref('EC2InstanceProfile'),
