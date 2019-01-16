@@ -65,7 +65,7 @@ t.add_resource(Role(
 		]
 	),
 	Path="/",
-	ManagedPolicyArns=['arn:aws:iam::aws:policy/servicerole/AmazonEC2ContainerServiceRole']
+	ManagedPolicyArns=['arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole']
 ))
 t.add_resource(ecs.Service(
 	"service",
