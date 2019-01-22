@@ -76,7 +76,8 @@ t.add_resource(Role(
 				Action=[AssumeRole],
 				Principal=Principal(
 					"Service",
-					["cloudformation.amazonaws.com"])
+					["cloudformation.amazonaws.com"]
+				)
 			),
 		]
 	),
@@ -100,7 +101,7 @@ t.add_resource(Pipeline(
 	RoleArn=GetAtt("PipelineRole", "Arn"),
 	ArtifactStore=ArtifactStore(
 		Type="S3",
-		Location=Ref("S3Bucket")
+		Location=Ref("S3Bucket"),
 		Stages=[
 			Stages(
 				Name="Source",
@@ -204,36 +205,37 @@ t.add_resource(Pipeline(
 			Stages(
 				Name="Production",
 				Actions=[
-				Actions(
-					Name="Deploy",
-					ActionTypeId=ActionTypeId(
-						Category="Deploy",
-						Owner="AWS",
-						Version="1",
-						Provider="CloudFormation"
-					),
-					Configuration={
-						"ChangeSetName": "Deploy",
-						"ActionMode": "CREATE_UPDATE",
-						"StackName": "production-helloworldecs-service",
-						"Capabilities": "CAPABILITY_NAMED_IAM",
-						"TemplatePath":
-						"App::templates/helloworld-ecs-service-cf.template",
-						"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
-						"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
-					},
-					InputArtifacts=[
-						InputArtifacts(
-							Name="App",
+					Actions(
+						Name="Deploy",
+						ActionTypeId=ActionTypeId(
+							Category="Deploy",
+							Owner="AWS",
+							Version="1",
+							Provider="CloudFormation"
 						),
-						InputArtifacts(
-							Name="BuildOutput"
-						)
-					],
-				)
-			]
-		)
-	],
+						Configuration={
+							"ChangeSetName": "Deploy",
+							"ActionMode": "CREATE_UPDATE",
+							"StackName": "production-helloworldecs-service",
+							"Capabilities": "CAPABILITY_NAMED_IAM",
+							"TemplatePath":
+							"App::templates/helloworld-ecs-service-cf.template",
+							"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
+							"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
+						},
+						InputArtifacts=[
+							InputArtifacts(
+								Name="App",
+							),
+							InputArtifacts(
+								Name="BuildOutput"
+							)
+						],
+					)
+				]
+			)
+		],
+	)
 ))
 
 print(t.to_json())
