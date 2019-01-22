@@ -102,140 +102,140 @@ t.add_resource(Pipeline(
 	ArtifactStore=ArtifactStore(
 		Type="S3",
 		Location=Ref("S3Bucket"),
-		Stages=[
-			Stages(
-				Name="Source",
-				Actions=[
-					Actions(
-						Name="Source",
-						ActionTypeId=ActionTypeId(
-							Category="Source",
-							Owner="ThirdParty",
-							Version="1",
-							Provider="GitHub"
+	),
+	Stages=[
+		Stages(
+			Name="Source",
+			Actions=[
+				Actions(
+					Name="Source",
+					ActionTypeId=ActionTypeId(
+						Category="Source",
+						Owner="ThirdParty",
+						Version="1",
+						Provider="GitHub"
+					),
+					Configuration={
+						"Owner": "ToBeConfiguredLater",
+						"Repo": "ToBeConfiguredLater",
+						"Branch": "ToBeConfiguredLater",
+						"OAuthToken": "ToBeConfiguredLater"
+					},
+					OutputArtifacts=[
+						OutputArtifacts(
+							Name="App"
+						)
+					],
+				)
+			]
+		),
+		Stages(
+			Name="Build",
+			Actions=[
+				Actions(
+					Name="Container",
+					ActionTypeId=ActionTypeId(
+						Category="Build",
+						Owner="AWS",
+						Version="1",
+						Provider="CodeBuild"
+					),
+					Configuration={
+						"ProjectName": "HelloWorldContainer",
+					},
+					InputArtifacts=[
+						InputArtifacts(
+							Name="App"
+						)
+					],
+					OutputArtifacts=[
+						OutputArtifacts(
+							Name="BuildOutput"
+						)
+					],
+				)
+			]
+		),
+		Stages(
+			Name="Staging",
+			Actions=[
+				Actions(
+					Name="Deploy",
+					ActionTypeId=ActionTypeId(
+						Category="Deploy",
+						Owner="AWS",
+						Version="1",
+						Provider="CloudFormation"
+					),
+					Configuration={
+						"ChangeSetName": "Deploy",
+						"ActionMode": "CREATE_UPDATE",
+						"StackName": "staging-helloworld-ecsservice",
+						"Capabilities": "CAPABILITY_NAMED_IAM",
+						"TemplatePath":	"App::templates/helloworld-ecs-service-cf.template",
+						"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
+						"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
+					},
+					InputArtifacts=[
+						InputArtifacts(
+							Name="App",
 						),
-						Configuration={
-							"Owner": "ToBeConfiguredLater",
-							"Repo": "ToBeConfiguredLater",
-							"Branch": "ToBeConfiguredLater",
-							"OAuthToken": "ToBeConfiguredLater"
-						},
-						OutputArtifacts=[
-							OutputArtifacts(
-								Name="App"
-							)
-						],
-					)
-				]
-			),
-			Stages(
-				Name="Build",
-				Actions=[
-					Actions(
-						Name="Container",
-						ActionTypeId=ActionTypeId(
-							Category="Build",
-							Owner="AWS",
-							Version="1",
-							Provider="CodeBuild"
+						InputArtifacts(
+							Name="BuildOutput"
+						)
+					],
+				)
+			]
+		),
+		Stages(
+			Name="Approval",
+			Actions=[
+				Actions(
+					Name="Approval",
+					ActionTypeId=ActionTypeId(
+						Category="Approval",
+						Owner="AWS",
+						Version="1",
+						Provider="Manual"
+					),
+					Configuration={},
+					InputArtifacts=[],
+				)
+			]
+		),
+		Stages(
+			Name="Production",
+			Actions=[
+				Actions(
+					Name="Deploy",
+					ActionTypeId=ActionTypeId(
+						Category="Deploy",
+						Owner="AWS",
+						Version="1",
+						Provider="CloudFormation"
+					),
+					Configuration={
+						"ChangeSetName": "Deploy",
+						"ActionMode": "CREATE_UPDATE",
+						"StackName": "production-helloworldecs-service",
+						"Capabilities": "CAPABILITY_NAMED_IAM",
+						"TemplatePath":
+						"App::templates/helloworld-ecs-service-cf.template",
+						"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
+						"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
+					},
+					InputArtifacts=[
+						InputArtifacts(
+							Name="App",
 						),
-						Configuration={
-							"ProjectName": "HelloWorldContainer",
-						},
-						InputArtifacts=[
-							InputArtifacts(
-								Name="App"
-							)
-						],
-						OutputArtifacts=[
-							OutputArtifacts(
-								Name="BuildOutput"
-							)
-						],
-					)
-				]
-			),
-			Stages(
-				Name="Staging",
-				Actions=[
-					Actions(
-						Name="Deploy",
-						ActionTypeId=ActionTypeId(
-							Category="Deploy",
-							Owner="AWS",
-							Version="1",
-							Provider="CloudFormation"
-						),
-						Configuration={
-							"ChangeSetName": "Deploy",
-							"ActionMode": "CREATE_UPDATE",
-							"StackName": "staging-helloworld-ecsservice",
-							"Capabilities": "CAPABILITY_NAMED_IAM",
-							"TemplatePath":	"App::templates/helloworld-ecs-service-cf.template",
-							"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
-							"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
-						},
-						InputArtifacts=[
-							InputArtifacts(
-								Name="App",
-							),
-							InputArtifacts(
-								Name="BuildOutput"
-							)
-						],
-					)
-				]
-			),
-			Stages(
-				Name="Approval",
-				Actions=[
-					Actions(
-						Name="Approval",
-						ActionTypeId=ActionTypeId(
-							Category="Approval",
-							Owner="AWS",
-							Version="1",
-							Provider="Manual"
-						),
-						Configuration={},
-						InputArtifacts=[],
-					)
-				]
-			),
-			Stages(
-				Name="Production",
-				Actions=[
-					Actions(
-						Name="Deploy",
-						ActionTypeId=ActionTypeId(
-							Category="Deploy",
-							Owner="AWS",
-							Version="1",
-							Provider="CloudFormation"
-						),
-						Configuration={
-							"ChangeSetName": "Deploy",
-							"ActionMode": "CREATE_UPDATE",
-							"StackName": "production-helloworldecs-service",
-							"Capabilities": "CAPABILITY_NAMED_IAM",
-							"TemplatePath":
-							"App::templates/helloworld-ecs-service-cf.template",
-							"RoleArn": GetAtt("CloudFormationHelloworldRole", "Arn"),
-							"ParameterOverrides": """{"Tag" : { "Fn::GetParam" : [ "BuildOutput", "build.json", "tag" ] } }"""
-						},
-						InputArtifacts=[
-							InputArtifacts(
-								Name="App",
-							),
-							InputArtifacts(
-								Name="BuildOutput"
-							)
-						],
-					)
-				]
-			)
-		],
-	)
+						InputArtifacts(
+							Name="BuildOutput"
+						)
+					],
+				)
+			]
+		)
+	],
 ))
 
 print(t.to_json())
