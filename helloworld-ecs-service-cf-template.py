@@ -1,16 +1,21 @@
 """Generating CloudFormation template."""
+
 from troposphere.ecs import (
 	TaskDefinition,
 	ContainerDefinition
 )
+
 from troposphere import ecs
+
 from awacs.aws import (
 	Allow,
 	Statement,
 	Principal,
 	Policy
 )
+
 from troposphere.iam import Role
+
 from troposphere import (
 	Parameter,
 	Ref,
@@ -20,6 +25,7 @@ from troposphere import (
 	Select,
 	Split,
 )
+
 from awacs.sts import AssumeRole
 
 t = Template()
@@ -53,6 +59,7 @@ t.add_resource(TaskDefinition(
 		)
 	],
 ))
+
 t.add_resource(Role(
 	"ServiceRole",
 	AssumeRolePolicyDocument=Policy(
@@ -67,6 +74,7 @@ t.add_resource(Role(
 	Path="/",
 	ManagedPolicyArns=['arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole']
 ))
+
 t.add_resource(ecs.Service(
 	"service",
 	Cluster=ImportValue(
