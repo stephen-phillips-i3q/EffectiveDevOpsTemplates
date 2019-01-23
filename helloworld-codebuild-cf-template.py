@@ -1,22 +1,27 @@
 """Generating CloudFormation template."""
+
 from awacs.aws import (
 	Allow,
 	Policy,
 	Principal,
 	Statement
 )
+
 from awacs.sts import AssumeRole
+
 from troposphere import (
 	Join,
 	Ref,
 	Template
 )
+
 from troposphere.codebuild import (
 	Artifacts,
 	Environment,
 	Project,
 	Source
 )
+
 from troposphere.iam import Role
 
 t = Template()
@@ -57,7 +62,7 @@ environment = Environment(
 	],
 )
 
-buildspec = """version: 0.1
+buildspec = """version: "0.1"
 phases:
 	pre_build:
 		commands:
